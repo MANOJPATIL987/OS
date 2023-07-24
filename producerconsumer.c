@@ -1,56 +1,66 @@
 #include <stdio.h>
-#include <semaphore.h>
-#include <pthread.h>
 #include <stdlib.h>
-#include <time.h>
 
-pthread_mutex_t mutex;
-sem_t empty, full;
-int in=0, out=0, buffer[5];
+int mutex = 1;
+int full = 0;
+int empty = 10, x = 0;
 
-void *producer(void *pno){
-    for(int i=0;i<5;i++){
-        sem_wait(&empty);
-        pthread_mutex_lock(&mutex);
-        int x = rand()%100;
-        buffer[in]=x;
-        in = (in+1)%5;
-        printf("Producer %d has put %d in buffer\n",*((int*)pno), x);
-        pthread_mutex_unlock(&mutex);
-        sem_post(&full);
-    }
+void producer()
+{
+    --mutex;
+    ++full;
+    --empty;
+    x++;
+    printf("\nProducer produces item %d", x);
+    ++mutex;
 }
 
-void *consumer(void* cno){
-    for(int i=0;i<5;i++){
-        sem_wait(&full);
-        pthread_mutex_lock(&mutex);
-        int x = buffer[out];
-        out = (out+1)%5;
-        printf("Comsumer %d has consumed %d\n",*((int*)cno), x);
-        pthread_mutex_unlock(&mutex);
-        sem_post(&empty);
-    }
+void consumer()
+{
+    --mutex;
+    --full;
+    ++empty;
+    printf("\nConsumer consumes item %d", x);
+    x--;
+    ++mutex;
 }
 
-void main(){
-    pthread_t prod[5], con[5];
-    sem_init(&empty,0,10);
-    sem_init(&full,0,0);
-    pthread_mutex_init(&mutex,NULL);
-    
-    int a[] = {1,2,3,4,5};
-    
-    for(int i=0;i<5;i++){
-        pthread_create(&prod[i],NULL,(void*)producer, (void*)&a[i]);
-        pthread_create(&con[i],NULL,(void*)consumer, (void*)&a[i]);
-    }
-    
-    for(int i=0;i<5;i++){
-        pthread_join(prod[i],NULL);
-        pthread_join(con[i],NULL);
-    }
-    pthread_mutex_destroy(&mutex);
-    sem_destroy(&empty);
-    sem_destroy(&full);
+int main()
+{
+    int n, i;
+    printf("\n1. Press 1 for Producer\n2. Press 2 for Consumer\n3. Press 3 for Exit");
+
+// #pragma omp critical
+
+    for (i = 1; i > 0; i++)
+    {
+        printf("\nEnter your choice:");
+        scanf("%d", &n);
+        switch (n)
+        {
+        case 1:
+            if ((mutex == 1) && (empty != 0))
+            {
+                producer();
+            }
+            else
+            {
+                printf("Buffer is full!");
+            }
+            break;
+        case 2:
+            if ((mutex == 1) && (full != 0))
+            {
+                consumer();
+            }
+            else
+            {
+                printf("Buffer is empty!");
+            }
+            break;
+        default:
+            exit(0);
+            break;
+        }
+    }
 }
