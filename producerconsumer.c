@@ -31,7 +31,7 @@ int main()
     printf("\n1. Press 1 for Producer\n2. Press 2 for Consumer\n3. Press 3 for Exit");
 
 
-    for (i = 1; i > 0; i++)
+    for (;;)
     {
         printf("\nEnter your choice:");
         scanf("%d", &n);
