@@ -15,7 +15,7 @@ scanf("%d",&nr);
 for(i=0;i<nr; i++)
 {
 printf("\nTotal Amount of the Resource R % d: ",i+1);
-scanf("%d, &r[i]);
+scanf("%d", &r[i]);
 }
 printf("\nEnter the request matrix:");
 
